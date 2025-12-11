@@ -5,6 +5,35 @@
 # 2) 選項換行修正（支援 \r\n / \r / \n）
 # 3) 清單（分頁）支援勾選刪除（單筆/多筆）
 # 其餘維持 v2.0 功能。
+import streamlit as st
+
+# --- Load password from secrets ---
+PASSWORD = st.secrets["APP_PASSWORD"]
+
+def check_password():
+    def password_entered():
+        if st.session_state["password"] == PASSWORD:
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        st.session_state["password_correct"] = False
+
+    if not st.session_state["password_correct"]:
+        st.text_input(
+            "Enter password", type="password",
+            on_change=password_entered, key="password"
+        )
+        if (
+            "password_correct" in st.session_state
+            and not st.session_state["password_correct"]
+        ):
+            st.error("Incorrect password")
+        st.stop()  # Stop the app until password is correct
+
+check_password()
 
 import os, math, shutil, sqlite3
 from datetime import datetime
